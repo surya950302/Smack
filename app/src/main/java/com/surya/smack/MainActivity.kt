@@ -3,6 +3,7 @@ package com.surya.smack
 import android.os.Bundle
 import android.view.Gravity
 import android.view.Menu
+import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
@@ -39,6 +40,16 @@ class MainActivity : AppCompatActivity() {
         }else{
             super.onBackPressed()
         }
+    }
+
+    fun loginBtnNavClicked(view : View){
+
+    }
+    fun addChannelClicked(view : View){
+
+    }
+    fun sendMsgBtnClicked(view : View){
+
     }
 
 }
