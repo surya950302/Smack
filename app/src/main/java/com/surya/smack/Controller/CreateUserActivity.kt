@@ -1,9 +1,11 @@
-package com.surya.smack
+package com.surya.smack.Controller
 
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import com.surya.smack.R
+import com.surya.smack.Services.AuthService
 import kotlinx.android.synthetic.main.activity_create_user.*
 import java.util.*
 
@@ -17,6 +19,7 @@ class CreateUserActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_user)
     }
+
     fun generateUserAvatar(view : View){
         val random = Random()
         val color = random.nextInt()
@@ -30,6 +33,7 @@ class CreateUserActivity : AppCompatActivity() {
         val resourceId = resources.getIdentifier(userAvatar,"drawable", packageName)
         createAvatarImageView.setImageResource(resourceId)
     }
+
     fun generateColorClicked(view : View){
         val random = Random()
         val r = random.nextInt(255)
@@ -45,5 +49,10 @@ class CreateUserActivity : AppCompatActivity() {
     }
     fun createUserClicked(view: View){
 
+        AuthService.registerUser(this,"s@s.com","pass@123"){complete ->
+            if(complete){
+
+            }
+        }
     }
 }
