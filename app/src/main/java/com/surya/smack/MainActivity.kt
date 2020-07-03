@@ -1,9 +1,13 @@
 package com.surya.smack
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.Menu
 import android.view.View
+import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
@@ -21,17 +25,24 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var appBarConfiguration: AppBarConfiguration
-
+    //val includeView : View = findViewById(R.id.nav_drawer_header_include)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-
-        val toggle = ActionBarDrawerToggle(this, drawer_layout,toolbar,R.string.toggle_open, R.string.toggle_close)
+        /*val includeView : View = findViewById(R.id.nav_drawer_header_include)
+        val logBtn : Button= includeView.findViewById(R.id.loginBtnNavHeader)
+        logBtn.setOnClickListener { view : View -> Unit
+            Log.d("LoginNav","Login btn clicked")
+            val loginIntent = Intent(this, LoginActivity :: class.java)
+            startActivity(loginIntent)
+        }*/
+        val toggle = ActionBarDrawerToggle(this, drawer_layout, toolbar, R.string.toggle_open, R.string.toggle_close)
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
+
+
     }
 
     override fun onBackPressed() {
@@ -42,8 +53,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun loginBtnNavClicked(view : View){
 
+    fun loginBtnNavClicked(view : View){
+        Log.d("LoginNav","Login btn clicked")
+        val loginIntent = Intent(this, LoginActivity::class.java)
+        startActivity(loginIntent)
     }
     fun addChannelClicked(view : View){
 
