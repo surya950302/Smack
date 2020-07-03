@@ -1,5 +1,6 @@
 package com.surya.smack
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -16,7 +17,8 @@ class LoginActivity : AppCompatActivity() {
 
     }
     fun loginSignUpOnClicked(view : View){
-
+        val signUpIntent = Intent(this, CreateUserActivity :: class.java)
+        startActivity(signUpIntent)
     }
 
 }
