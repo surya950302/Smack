@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:text="Suryanarayan"
+        android:text="Login"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         app:layout_constraintStart_toEndOf="@+id/userImageNaveHeader"
         app:layout_constraintTop_toTopOf="@+id/userImageNaveHeader"
@@ -38,7 +38,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="surya@gmail.com"
         app:layout_constraintStart_toEndOf="@+id/userImageNaveHeader"
         app:layout_constraintTop_toBottomOf="@+id/userNameNavHeader"
         tools:text="surya@gmail.com" />
