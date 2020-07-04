@@ -31,7 +31,7 @@ class CreateUserActivity : AppCompatActivity() {
         val random = Random()
         val color = random.nextInt()
         val avatar =random.nextInt(28)
-        if(color % 2 == 0){
+        if(color %2 == 0){
             userAvatar = "light$avatar"
         }
         else{
@@ -46,11 +46,12 @@ class CreateUserActivity : AppCompatActivity() {
         val r = random.nextInt(255)
         val g = random.nextInt(255)
         val b = random.nextInt(255)
+        println("Selected : r- $r, g- $g, b- $b")
         createAvatarImageView.setBackgroundColor(Color.rgb(r,g,b))
         //covert for sending to db
         val savedR = r.toDouble()/255
-        val savedG = r.toDouble()/255
-        val savedB = r.toDouble()/255
+        val savedG = g.toDouble()/255
+        val savedB = b.toDouble()/255
         avatarColor = "[$savedR, $savedG, $savedB, 1]"
         //println(avatarColor)
     }
