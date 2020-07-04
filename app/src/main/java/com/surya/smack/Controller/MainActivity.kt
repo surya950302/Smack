@@ -1,15 +1,14 @@
 package com.surya.smack.Controller
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.content.res.Resources
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.EditText
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
@@ -79,7 +78,27 @@ class MainActivity : AppCompatActivity() {
 
     }
     fun addChannelClicked(view : View){
+        Log.d("Add Channel","I am adding channel")
+        if(AuthService.isLoggedIn){
+            val builder = AlertDialog.Builder(this)
+            val dialogView = layoutInflater.inflate(R.layout.add_channel_dialog, null)
 
+            builder.setView(dialogView)
+                .setPositiveButton("Add"){ dialog: DialogInterface?, i: Int ->
+                    //logic when clicked
+                    //cant get the fields using the synthetics import as that works only for fields on activity_main.xml
+                    val nameTextFiled = dialogView.findViewById<EditText>(R.id.addChannelNameText)
+                    val channelDecsTextFiled = dialogView.findViewById<EditText>(R.id.addChannelDecsText)
+                    val channelName = nameTextFiled.text.toString()
+                    val channelDesc = channelDecsTextFiled.text.toString()
+
+                    //Create Channel
+                }
+                .setNegativeButton("Cancel"){dialog: DialogInterface?, i: Int ->
+                    //logic when clicked
+                }
+                .show()
+        }
     }
     fun sendMsgBtnClicked(view : View){
 
