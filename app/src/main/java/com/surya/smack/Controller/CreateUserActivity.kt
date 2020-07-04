@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import com.surya.smack.R
 import com.surya.smack.Services.AuthService
+import com.surya.smack.Services.UserDataService
 import kotlinx.android.synthetic.main.activity_create_user.*
 import java.util.*
 
@@ -48,14 +49,22 @@ class CreateUserActivity : AppCompatActivity() {
         //println(avatarColor)
     }
     fun createUserClicked(view: View){
+        val userName = createUserNameText.text.toString()
         val email= createEmailText.text.toString()
         val password= creatPasswordText.text.toString()
         AuthService.registerUser(this,email,password){registerSuccess ->
             if(registerSuccess){
                 AuthService.loginUser(this, email,password){loginSuccess ->
                     if(loginSuccess){
-                        println(AuthService.authToken)
-                        println(AuthService.userEmail)
+                        /*println(AuthService.authToken)
+                        println(AuthService.userEmail)*/
+                        AuthService.addUser(this,userName,email,userAvatar,avatarColor){createSuccess ->
+                            if(createSuccess){
+                                println("Avatar name: ${UserDataService.avatarName} and Avatar color: ${UserDataService.avatarColor}")
+                                finish()
+                            }
+
+                        }
                     }
 
                 }
