@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -14,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.surya.smack.Model.Message
 import com.surya.smack.R
 import com.surya.smack.Services.AuthService
 import com.surya.smack.Services.MessageService
@@ -45,6 +47,7 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         socket.connect()
         socket.on("channelCreated",onNewChannel) //onNewChannel is an object of Socket Emitter
+        socket.on("messageCreated", onNewMessage )
         val toggle = ActionBarDrawerToggle(this, drawer_layout, toolbar,
             R.string.toggle_open,
             R.string.toggle_close
@@ -106,7 +109,15 @@ class MainActivity : AppCompatActivity() {
     fun updateWithChannel(){
         mainChannelName.text = "#${selectedChannel?.name}"
         //download messages for channel
-
+        if(selectedChannel != null){
+            MessageService.getMessages(selectedChannel!!.id){ messageSuccess ->
+                if(messageSuccess){
+                    for (msg in MessageService.messages){
+                         Log.v("messages","${msg.message}")
+                    }
+                }
+            }
+        }
     }
     override fun onBackPressed() {
         if(drawer_layout.isDrawerOpen(GravityCompat.START)){
@@ -159,21 +170,64 @@ class MainActivity : AppCompatActivity() {
 
     private val onNewChannel = Emitter.Listener { args ->
         //this run on a worker thread so we need to make it run on the main thread thats why the lambda expression
-        runOnUiThread {
-            //println(args[0] as String)
-            val channelName = args[0] as String
-            val channelDecs = args[1] as String
-            val channelId = args[2] as String
+        if(App.sp.isLoggedIn){
+            runOnUiThread {
+                //println(args[0] as String)
+                val channelName = args[0] as String
+                val channelDecs = args[1] as String
+                val channelId = args[2] as String
 
-            val newChannel = com.surya.smack.Model.Channel(channelName,channelDecs,channelId)
-            MessageService.channels.add(newChannel)
-            println(MessageService.channels)
-            channelAdapter.notifyDataSetChanged()
+                val newChannel = com.surya.smack.Model.Channel(channelName,channelDecs,channelId)
+                MessageService.channels.add(newChannel)
+                println(MessageService.channels)
+                channelAdapter.notifyDataSetChanged()
+            }
         }
 
     }
-    fun sendMsgBtnClicked(view : View){
 
+    private val onNewMessage = Emitter.Listener { args ->
+        if(App.sp.isLoggedIn){
+            runOnUiThread {
+                val channelId = args[2] as String
+                if(channelId == selectedChannel?.id){
+                    val msgBody = args[0] as String
+                    val userName = args[3] as String
+                    val avatarName = args[4] as String
+                    val avatarColor = args[5] as String
+                    val id = args[6] as String
+                    val timeStamp = args[7] as String
+
+                    val newMessage = Message(msgBody,userName,channelId, avatarName, avatarColor,id, timeStamp)
+                    MessageService.messages.add(newMessage)
+                    println(newMessage.message)
+                }
+            }
+        }
+    }
+
+    fun sendMsgBtnClicked(view : View){
+        if(App.sp.isLoggedIn && messageTextField.text.isNotEmpty() && selectedChannel != null ){
+            val userId = UserDataService.id
+            val channelId = selectedChannel!!.id
+            socket.emit("newMessage",
+                messageTextField.text.toString(),
+                userId,
+                channelId,
+                UserDataService.name,
+                UserDataService.avatarName,
+                UserDataService.avatarColor
+            )
+            messageTextField.text.clear()
+            hideKeyBoard()
+        }
+    }
+    //Func to hide keyboard
+    fun hideKeyBoard(){
+        val inputManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        if(inputManager.isAcceptingText){
+            inputManager.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+        }
     }
 
 }
