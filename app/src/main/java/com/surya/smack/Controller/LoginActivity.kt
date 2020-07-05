@@ -23,6 +23,7 @@ class LoginActivity : AppCompatActivity() {
 
     fun loginLoginOnClicked(view : View){
         enableSpinner(true)
+        hideKeyBoard()
         val email = loginEmailText.text.toString()
         val password = loginPasswordText.text.toString()
         //hideKeyBoard()

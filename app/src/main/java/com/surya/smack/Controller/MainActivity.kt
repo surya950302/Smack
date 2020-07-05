@@ -15,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.surya.smack.Adapters.MessageAdapter
 import com.surya.smack.Model.Message
 import com.surya.smack.R
 import com.surya.smack.Services.AuthService
@@ -34,11 +36,18 @@ class MainActivity : AppCompatActivity() {
     val socket = IO.socket(SOCKET_URL)
     lateinit var channelAdapter : ArrayAdapter<com.surya.smack.Model.Channel>
     var selectedChannel : com.surya.smack.Model.Channel? = null
+    lateinit var  msgAdapter: MessageAdapter
 
     private fun setupAdapter(){
         channelAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, MessageService.channels)
         channel_list.adapter = channelAdapter
+
+        msgAdapter = MessageAdapter(this, MessageService.messages)
+        messageListView.adapter = msgAdapter
+        val layoutManager = LinearLayoutManager(this)
+        messageListView.layoutManager = layoutManager
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +65,10 @@ class MainActivity : AppCompatActivity() {
         toggle.syncState()
         setupAdapter()
 
+        LocalBroadcastManager.getInstance(this).registerReceiver(userDataChangeReceiver, IntentFilter(
+            BROADCAST_USER_DATA_CHANGE
+        ))
+
         channel_list.setOnItemClickListener { _, _, position, _ ->
             selectedChannel =  MessageService.channels[position]
             drawer_layout.closeDrawer(GravityCompat.START)
@@ -65,14 +78,6 @@ class MainActivity : AppCompatActivity() {
         if(App.sp.isLoggedIn){
             AuthService.finfUserByEmail(this){}
         }
-    }
-
-    override fun onResume() {
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(userDataChangeReceiver, IntentFilter(
-            BROADCAST_USER_DATA_CHANGE
-        ))
-        super.onResume()
     }
 
     override fun onDestroy() {
@@ -114,6 +119,10 @@ class MainActivity : AppCompatActivity() {
                 if(messageSuccess){
                     for (msg in MessageService.messages){
                          Log.v("messages","${msg.message}")
+                        msgAdapter.notifyDataSetChanged()
+                        if(msgAdapter.itemCount > 0){
+                            messageListView.smoothScrollToPosition(msgAdapter.itemCount-1)
+                        }
                     }
                 }
             }
@@ -132,11 +141,14 @@ class MainActivity : AppCompatActivity() {
         Log.d("LoginNav","Login btn clicked")
         if(App.sp.isLoggedIn){
             UserDataService.logout()
+            channelAdapter.notifyDataSetChanged()
+            msgAdapter.notifyDataSetChanged()
             userEmailNavHeader.text = ""
             userNameNavHeader.text = "Login"
             userImageNaveHeader.setImageResource(R.drawable.profiledefault)
             userImageNaveHeader.setBackgroundColor(Color.TRANSPARENT)
             loginBtnNavHeader.text = "Login"
+            mainChannelName.text = "#Login Please"
         }else{
             val loginIntent = Intent(this, LoginActivity::class.java)
             startActivity(loginIntent)
@@ -201,6 +213,8 @@ class MainActivity : AppCompatActivity() {
                     val newMessage = Message(msgBody,userName,channelId, avatarName, avatarColor,id, timeStamp)
                     MessageService.messages.add(newMessage)
                     println(newMessage.message)
+                    msgAdapter.notifyDataSetChanged()
+                    messageListView.smoothScrollToPosition(msgAdapter.itemCount-1)
                 }
             }
         }
