@@ -5,6 +5,7 @@ import android.util.Log
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.Volley
+import com.surya.smack.Controller.App
 import com.surya.smack.Model.Channel
 import com.surya.smack.Utilities.URL_GET_CHANNELS
 import org.json.JSONException
@@ -14,7 +15,7 @@ object MessageService {
 
     val channels = ArrayList<Channel>()
 
-    fun getChannels(context: Context, complete: (Boolean) -> Unit){
+    fun getChannels(complete: (Boolean) -> Unit){
 
         val channelRequest = object : JsonArrayRequest(Method.GET, URL_GET_CHANNELS, null, Response.Listener {response ->
             try{
@@ -44,8 +45,8 @@ object MessageService {
             override fun getHeaders(): MutableMap<String, String> {
                 val headers = HashMap<String, String>()
                 try{
-                    Log.d("Auth Token","${AuthService.authToken}")
-                    headers.put("Authorization", "Bearer ${AuthService.authToken}")
+                    Log.d("Auth Token","${App.sp.authToken}")
+                    headers.put("Authorization", "Bearer ${App.sp.authToken}")
                 }catch (e: Exception){
                     println("The token is not defined: ${e.printStackTrace()}")
                 }
@@ -53,6 +54,6 @@ object MessageService {
             }
 
         }
-        Volley.newRequestQueue(context).add(channelRequest)
+        App.sp.requestQueue.add(channelRequest)
     }
 }

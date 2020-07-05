@@ -1,6 +1,7 @@
 package com.surya.smack.Services
 
 import android.graphics.Color
+import com.surya.smack.Controller.App
 import java.util.*
 
 object UserDataService {
@@ -38,9 +39,9 @@ object UserDataService {
         avatarName = ""
         email = ""
         name = ""
-        AuthService.authToken = ""
-        AuthService.userEmail = ""
-        AuthService.isLoggedIn = false
+        App.sp.authToken = ""
+        App.sp.userEmail = ""
+        App.sp.isLoggedIn = false
 
     }
 }

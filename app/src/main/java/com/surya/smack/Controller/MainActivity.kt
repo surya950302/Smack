@@ -23,6 +23,7 @@ import com.surya.smack.Utilities.SOCKET_URL
 import io.socket.client.IO
 import io.socket.emitter.Emitter
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 import kotlinx.coroutines.channels.Channel
 
@@ -30,6 +31,7 @@ class MainActivity : AppCompatActivity() {
 
     val socket = IO.socket(SOCKET_URL)
     lateinit var channelAdapter : ArrayAdapter<com.surya.smack.Model.Channel>
+    var selectedChannel : com.surya.smack.Model.Channel? = null
 
     private fun setupAdapter(){
         channelAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, MessageService.channels)
@@ -50,6 +52,16 @@ class MainActivity : AppCompatActivity() {
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
         setupAdapter()
+
+        channel_list.setOnItemClickListener { _, _, position, _ ->
+            selectedChannel =  MessageService.channels[position]
+            drawer_layout.closeDrawer(GravityCompat.START)
+            updateWithChannel()
+        }
+
+        if(App.sp.isLoggedIn){
+            AuthService.finfUserByEmail(this){}
+        }
     }
 
     override fun onResume() {
@@ -69,7 +81,7 @@ class MainActivity : AppCompatActivity() {
 
     private val userDataChangeReceiver = object : BroadcastReceiver(){
         override fun onReceive(context: Context, intent: Intent?) {
-            if(AuthService.isLoggedIn){
+            if(App.sp.isLoggedIn){
                 userNameNavHeader.text = UserDataService.name
                 userEmailNavHeader.text = UserDataService.email
 
@@ -78,14 +90,23 @@ class MainActivity : AppCompatActivity() {
                 userImageNaveHeader.setBackgroundColor(UserDataService.returnAvatarColor(UserDataService.avatarColor))
                 loginBtnNavHeader.text = "Logout"
 
-                MessageService.getChannels(context){complete ->
+                MessageService.getChannels(){complete ->
                     if(complete){
-                        channelAdapter.notifyDataSetChanged()
+                        if(MessageService.channels.count() > 0){
+                            selectedChannel = MessageService.channels[0]
+                            channelAdapter.notifyDataSetChanged()
+                            updateWithChannel()
+                        }
                     }
-
                 }
             }
         }
+    }
+
+    fun updateWithChannel(){
+        mainChannelName.text = "#${selectedChannel?.name}"
+        //download messages for channel
+
     }
     override fun onBackPressed() {
         if(drawer_layout.isDrawerOpen(GravityCompat.START)){
@@ -98,7 +119,7 @@ class MainActivity : AppCompatActivity() {
 
     fun loginBtnNavClicked(view : View){
         Log.d("LoginNav","Login btn clicked")
-        if(AuthService.isLoggedIn){
+        if(App.sp.isLoggedIn){
             UserDataService.logout()
             userEmailNavHeader.text = ""
             userNameNavHeader.text = "Login"
@@ -113,12 +134,12 @@ class MainActivity : AppCompatActivity() {
     }
     fun addChannelClicked(view : View){
         Log.d("Add Channel","I am adding channel")
-        if(AuthService.isLoggedIn){
+        if(App.sp.isLoggedIn){
             val builder = AlertDialog.Builder(this)
             val dialogView = layoutInflater.inflate(R.layout.add_channel_dialog, null)
 
             builder.setView(dialogView)
-                .setPositiveButton("Add"){ dialog: DialogInterface?, i: Int ->
+                .setPositiveButton("Add"){ _, _ ->
                     //logic when clicked
                     //cant get the fields using the synthetics import as that works only for fields on activity_main.xml
                     val nameTextFiled = dialogView.findViewById<EditText>(R.id.addChannelNameText)
@@ -129,8 +150,7 @@ class MainActivity : AppCompatActivity() {
                     //Create Channel
                     socket.emit("newChannel", channelName,channelDesc)
                 }
-                .setNegativeButton("Cancel"){dialog: DialogInterface?, i: Int ->
-
+                .setNegativeButton("Cancel"){_, _ ->
                     //logic when clicked
                 }
                 .show()

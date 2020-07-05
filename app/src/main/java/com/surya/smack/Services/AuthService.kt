@@ -8,16 +8,17 @@ import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.surya.smack.Controller.App
 import com.surya.smack.Utilities.*
 import org.json.JSONException
 import org.json.JSONObject
 import java.lang.Exception
 
 object AuthService {
-    var isLoggedIn = false
-    var userEmail = ""
-    var authToken = ""
-    fun registerUser(context: Context, email : String, password : String, complete : (Boolean)  -> Unit){
+    //var isLoggedIn = false
+    //var userEmail = ""
+    //var authToken = ""
+    fun registerUser(email : String, password : String, complete : (Boolean)  -> Unit){
 
         val jsonBody = JSONObject()
         jsonBody.put("email", email)
@@ -39,11 +40,11 @@ object AuthService {
             }
         }
 
-        Volley.newRequestQueue(context).add(registerRequest)
+        App.sp.requestQueue.add(registerRequest)
 
     }
 
-    fun loginUser(context: Context,email : String, password : String, complete : (Boolean)  -> Unit) {
+    fun loginUser(email : String, password : String, complete : (Boolean)  -> Unit) {
 
         val jsonBody = JSONObject()
         jsonBody.put("email", email)
@@ -53,9 +54,9 @@ object AuthService {
         val loginRequest = object : JsonObjectRequest(Method.POST, URL_LOGIN, null, Response.Listener {response ->
             //println(response)
             try{
-                authToken = response.getString("token")
-                userEmail = response.getString("user")
-                isLoggedIn = true
+                App.sp.authToken = response.getString("token")
+                App.sp.userEmail = response.getString("user")
+                App.sp.isLoggedIn = true
                 complete(true)
             }catch (e: JSONException){
                 Log.d("JSON Exception","${e.printStackTrace()}")
@@ -75,10 +76,10 @@ object AuthService {
                 return requestBody.toByteArray()
             }
         }
-        Volley.newRequestQueue(context).add(loginRequest) //not good to keep creating new requwsts every time may lead to memory leaks
+        App.sp.requestQueue.add(loginRequest) //not good to keep creating new requwsts every time may lead to memory leaks
     }
 
-    fun addUser(context: Context, name : String, email: String, avatarName : String, avatarColor : String, complete: (Boolean) -> Unit){
+    fun addUser(name : String, email: String, avatarName : String, avatarColor : String, complete: (Boolean) -> Unit){
 
         val jsonBody = JSONObject()
         jsonBody.put("name", name)
@@ -115,8 +116,8 @@ object AuthService {
             override fun getHeaders(): MutableMap<String, String> {
                 val headers = HashMap<String, String>()
                 try{
-                    Log.d("Auth Token","$authToken")
-                    headers.put("Authorization", "Bearer $authToken")
+                    Log.d("Auth Token","${App.sp.authToken}")
+                    headers.put("Authorization", "Bearer ${App.sp.authToken}")
                 }catch (e: Exception){
                     println("The token is not defined: ${e.printStackTrace()}")
                 }
@@ -124,12 +125,12 @@ object AuthService {
             }
         }
 
-        Volley.newRequestQueue(context).add(creatUserRequest)
+        App.sp.requestQueue.add(creatUserRequest)
     }
 
     fun finfUserByEmail(context: Context, complete: (Boolean) -> Unit){
 
-        val findUserRequest = object : JsonObjectRequest(Method.GET, "$URL_GET_USER$userEmail", null, Response.Listener { response ->
+        val findUserRequest = object : JsonObjectRequest(Method.GET, "$URL_GET_USER${App.sp.userEmail}", null, Response.Listener { response ->
             try{
                 UserDataService.name = response.getString("name")
                 UserDataService.email = response.getString("email")
@@ -159,14 +160,14 @@ object AuthService {
                 val headers = HashMap<String, String>()
                 try{
                     //Log.d("Auth Token","$authToken")
-                    headers.put("Authorization", "Bearer $authToken")
+                    headers.put("Authorization", "Bearer ${App.sp.authToken}")
                 }catch (e: Exception){
                     println("The token is not defined: ${e.printStackTrace()}")
                 }
                 return headers
             }
         }
-        Volley.newRequestQueue(context).add(findUserRequest)
+        App.sp.requestQueue.add(findUserRequest)
     }
 
 }
